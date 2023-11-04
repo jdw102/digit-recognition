@@ -1,4 +1,5 @@
 
+# Returns a general form of the data, separated by digit, then gender, and then block
 def parse(name, num_blocks):
     data = {}
     # Initialize an empty list to store the separated blocks of text
@@ -29,6 +30,16 @@ def parse(name, num_blocks):
             data[digit] = {}
         if gender not in data [digit]:
             data[digit][gender] = []
-        data[digit][gender].append([line.split(" ") for line in block.split("\n")])
+        data[digit][gender].append([[float(entry) for entry in line.split(" ")] for line in block.split("\n")])
 
     return data
+
+# Separates a list of tokens into a 2D tuple of MFCCs separated by their index
+def separate_mfccs(mfccs):
+    return tuple(zip(*mfccs))
+
+
+data = parse("Train_Arabic_Digit.txt", 660)
+
+# Number of phonemes in each digit
+phoneme_nums = [4, 4, 4, 3, 3, 4, 4, 4, 6, 4]
