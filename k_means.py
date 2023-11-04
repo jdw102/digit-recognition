@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
 from sklearn.cluster import KMeans
-from plot import mfccs_subplots
+from mfccs_plot import mfccs_subplots, plotting_colors
 from data_parser import data, phoneme_nums, separate_mfccs, extract_mfccs
 
 
@@ -15,13 +15,13 @@ def mesh_gaussian_pdf(mean, cov):
     return x_mesh, y_mesh, pdf_values
 
 
-def mfccs_contours(center, mfccs, plotting_pairs, ax):
+def mfccs_contours(center, mfccs, plotting_pairs, ax, color):
     for i, pair in enumerate(plotting_pairs):
         x, y = pair
         cov = np.cov(mfccs[x], mfccs[y])
         mean = [center[x], center[y]]
         x_mesh, y_mesh, pdf = mesh_gaussian_pdf(mean, cov)
-        ax[i].contour(x_mesh, y_mesh, pdf, alpha=0.5)
+        ax[i].contour(x_mesh, y_mesh, pdf, alpha=0.4, colors=color)
 
 
 def perform_k_means(mfccs, n):
@@ -35,10 +35,12 @@ def perform_k_means(mfccs, n):
 
 def plot_k_means_clusters(clusters, digit):
     fig, ax = plt.subplots(1, 3, figsize=(12, 6))
+    index = 0
     for center, cluster in clusters:
         mfccs = separate_mfccs(cluster)
-        mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7)
-        mfccs_contours(center, mfccs, [[1, 0], [2, 0], [2, 1]], ax)
+        mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7, color=plotting_colors[index])
+        mfccs_contours(center, mfccs, [[1, 0], [2, 0], [2, 1]], ax, plotting_colors[index])
+        index += 1
     fig.suptitle("K-Means Phoneme Clusters on MFCCs: Digit " + str(digit))
     plt.tight_layout()
     plt.show()
