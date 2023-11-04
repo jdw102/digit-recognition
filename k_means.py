@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
 from sklearn.cluster import KMeans
-from plot import plot_mfccs_subplots
+from plot import mfccs_subplots
 from data_parser import data, phoneme_nums, separate_mfccs, extract_mfccs
 
 
@@ -15,7 +15,7 @@ def mesh_gaussian_pdf(mean, cov):
     return x_mesh, y_mesh, pdf_values
 
 
-def plot_mfccs_contours(center, mfccs, plotting_pairs, ax):
+def mfccs_contours(center, mfccs, plotting_pairs, ax):
     for i, pair in enumerate(plotting_pairs):
         x, y = pair
         cov = np.cov(mfccs[x], mfccs[y])
@@ -37,8 +37,8 @@ def plot_k_means_clusters(clusters, digit):
     fig, ax = plt.subplots(1, 3, figsize=(12, 6))
     for center, cluster in clusters:
         mfccs = separate_mfccs(cluster)
-        plot_mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7)
-        plot_mfccs_contours(center, mfccs, [[1, 0], [2, 0], [2, 1]], ax)
+        mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7)
+        mfccs_contours(center, mfccs, [[1, 0], [2, 0], [2, 1]], ax)
     fig.suptitle("K-Means Phoneme Clusters on MFCCs: Digit " + str(digit))
     plt.tight_layout()
     plt.show()
