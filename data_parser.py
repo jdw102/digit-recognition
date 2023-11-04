@@ -34,6 +34,20 @@ def parse(name, num_blocks):
 
     return data
 
+
+# Extracts all tokens into a single list
+def extract_mfccs(data):
+    mfccs = [[] for _ in range(10)]
+    for digit in data:
+        if digit not in mfccs:
+            mfccs[digit] = []
+        for block in data[digit]["male"]:
+            mfccs[digit].extend(block)
+        for block in data[digit]["female"]:
+            mfccs[digit].extend(block)
+    return mfccs
+
+
 # Separates a list of tokens into a 2D tuple of MFCCs separated by their index
 def separate_mfccs(mfccs):
     return tuple(zip(*mfccs))
