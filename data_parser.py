@@ -53,7 +53,10 @@ def separate_mfccs(mfccs):
     return tuple(zip(*mfccs))
 
 
-data = parse("Train_Arabic_Digit.txt", 660)
+training_data = parse("Train_Arabic_Digit.txt", 660)
+test_data = parse("Test_Arabic_Digit.txt", 220)
+training_tokens = extract_mfccs(training_data)
+test_tokens = extract_mfccs(test_data)
 
 # Number of phonemes in each digit
-phoneme_nums = [4, 4, 4, 3, 3, 4, 4, 4, 6, 4]
+phoneme_nums = [4, 4, 4, 3, 3, 4, 4, 4, 6, 3]
