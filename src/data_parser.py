@@ -2,25 +2,17 @@
 # Returns a general form of the data, separated by digit, then gender, and then block
 def parse(name, num_blocks):
     data = {}
-    # Initialize an empty list to store the separated blocks of text
     text_blocks = []
-
-    # Initialize an empty string to accumulate lines between blank lines
     current_block = ""
-
-    # Open the text file for reading
     with open(name, "r") as file:
         for line in file:
-            line = line.strip()  # Remove leading/trailing whitespace
+            line = line.strip()
             if line:
-                current_block += line + "\n"  # Add the line to the current block
+                current_block += line + "\n"
             else:
-                # Encountered a blank line, add the current block to the list
                 if current_block:
-                    text_blocks.append(current_block.strip())  # Remove trailing newline
-                    current_block = ""  # Reset the current block
-
-    # Add the last block if it's not empty
+                    text_blocks.append(current_block.strip())
+                    current_block = ""
     if current_block:
         text_blocks.append(current_block.strip())
     for index, block in enumerate(text_blocks):
@@ -31,7 +23,6 @@ def parse(name, num_blocks):
         if gender not in data [digit]:
             data[digit][gender] = []
         data[digit][gender].append([[float(entry) for entry in line.split(" ")] for line in block.split("\n")])
-
     return data
 
 
@@ -53,8 +44,8 @@ def separate_mfccs(mfccs):
     return tuple(zip(*mfccs))
 
 
-training_data = parse("Train_Arabic_Digit.txt", 660)
-test_data = parse("Test_Arabic_Digit.txt", 220)
+training_data = parse("./data/resources/Train_Arabic_Digit.txt", 660)
+test_data = parse("./data/resources/Test_Arabic_Digit.txt", 220)
 training_tokens = extract_mfccs(training_data)
 test_tokens = extract_mfccs(test_data)
 
