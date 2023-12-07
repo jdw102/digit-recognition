@@ -1,19 +1,18 @@
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
-from src.cov_util import cov
-
+from src.cov_util import cov, Cov
 
 rand = np.random.RandomState(42)
 
 
-def perform_k_means(data, n, covariance_type="full", tied=False):
+def perform_k_means(data, n, covariance_type=Cov.FULL):
     data = np.array(data)
     k_means = KMeans(n_clusters=n, random_state=rand, n_init="auto", init='k-means++').fit(data)
     labels = np.array(k_means.labels_)
     unique_labels = np.unique(labels)
     points = [data[labels == label] for label in unique_labels]
-    covariances = cov(points, cov_type=covariance_type, tied=tied)
+    covariances = cov(points, cov_type=covariance_type)
     clusters = []
 
     for i in range(len(k_means.cluster_centers_)):
@@ -26,21 +25,19 @@ def perform_k_means(data, n, covariance_type="full", tied=False):
     return clusters
 
 
-def perform_em(data, n, covariance_type="full", tied=False):
-    if tied:
-        covariance_type = "tied " + covariance_type
+def perform_em(data, n, covariance_type=Cov.FULL):
     data = np.array(data)
-    gm = GaussianMixture(n_components=n, covariance_type=covariance_type).fit(data)
+    gm = GaussianMixture(n_components=n, covariance_type=covariance_type.value).fit(data)
     labels = gm.predict(data)
     unique_labels = np.unique(labels)
     points = [data[labels == label] for label in unique_labels]
     clusters = []
     for i in range(len(gm.means_)):
-        if covariance_type == "full":
+        if covariance_type == Cov.FULL:
             covar = gm.covariances_[i]
-        elif covariance_type == "diag" or covariance_type == "tied diag":
+        elif covariance_type == Cov.DIAG or covariance_type == Cov.TIED_DIAG:
             covar = np.diag(gm.covariances_[i])
-        elif covariance_type == "spherical" or covariance_type == "tied spherical":
+        elif covariance_type == Cov.SPHERICAL or covariance_type == Cov.TIED_SPHERICAL:
             covar = gm.covariances_[i] * np.identity(len(data[0]))
         else:
             covar = gm.covariances_

@@ -3,6 +3,7 @@ import numpy as np
 from scipy.stats import multivariate_normal
 from sklearn.neighbors import KernelDensity
 from src.data_parser import separate_mfccs
+from matplotlib.colors import LinearSegmentedColormap
 
 
 plotting_colors = ['red', 'green', 'blue', 'orange', 'yellow', 'brown', 'black']
@@ -84,4 +85,26 @@ def plot_clusters(clusters, digit):
     fig.suptitle("K-Means Phoneme Clusters on MFCCs: Digit " + str(digit))
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.15)
+    plt.show()
+
+
+def plot_confusion_matrix(confusion_matrix, overall_accuracy):
+    fig, ax = plt.subplots()
+    gradient_cmap = LinearSegmentedColormap.from_list('custom_gradient', ["#ffffff", "#6d98ed"], N=256)
+    im = ax.imshow(confusion_matrix, cmap=gradient_cmap)
+
+    ax.set_xticks(np.arange(10))
+    ax.set_yticks(np.arange(10))
+    ax.set_xticklabels([str(i) for i in range(10)])
+    ax.set_yticklabels([str(i) for i in range(10)])
+
+    plt.xlabel("Predicted Values")
+    plt.ylabel("True Values")
+    plt.title("Confusion Matrix w/ Overall Accuracy: {:.2f}%".format(overall_accuracy * 100))
+
+    for i in range(10):
+        for j in range(10):
+            ax.text(j, i, "{:.2f}".format(confusion_matrix[i, j]), ha='center', va='center', color='black')
+
+    plt.colorbar(im)
     plt.show()

@@ -1,13 +1,21 @@
+from enum import Enum
+
 from src.data_clustering import perform_k_means, perform_em
 from src.data_parser import phoneme_nums
 from scipy.stats import multivariate_normal
 import numpy as np
+from src.cov_util import Cov
 
 
-def create_gmm(digit, tokens, method="k-means", cov_type="full", tied=False):
-    if method == "em":
-        return perform_em(tokens, phoneme_nums[digit], covariance_type=cov_type, tied=tied)
-    return perform_k_means(tokens, phoneme_nums[digit], covariance_type=cov_type, tied=tied)
+class Method(Enum):
+    K_MEANS = "k-means"
+    E_M = "em"
+
+
+def create_gmm(digit, tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
+    if method == Method.E_M:
+        return perform_em(tokens, phoneme_nums[digit], covariance_type=cov_type)
+    return perform_k_means(tokens, phoneme_nums[digit], covariance_type=cov_type)
 
 
 def gmm_likelihood(gmm, utterance):
@@ -27,16 +35,16 @@ def digit_likelihood(digit, gmm, d):
     return ret
 
 
-def likelihood_all_digits(digit, data, tokens, method="k-means", cov_type="full", tied=False):
-    gmm = create_gmm(digit, tokens[digit], method, cov_type, tied)
+def likelihood_all_digits(digit, data, tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
+    gmm = create_gmm(digit, tokens[digit], method, cov_type)
     likelihoods = []
     for num in range(10):
         likelihoods.append(digit_likelihood(num, gmm, data))
     return likelihoods
 
 
-def generate_model(tokens, method="k-means", cov_type="full", tied=False):
-    return [create_gmm(i, tokens[i], method, cov_type, tied) for i in range(10)]
+def generate_model(tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
+    return [create_gmm(i, tokens[i], method, cov_type) for i in range(10)]
 
 
 def determine_category(utterance, model):
