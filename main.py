@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # generate_mfccs_analysis(0, 3, "male", training_data)
 
     # Generate plot for log likelihood of one GMM for all digits
-    generate_log_likelihood_analysis(9, training_data)
+    generate_log_likelihood_analysis(9, training_data, training_tokens, "k-means", "full", False)
 
     # Generate plots for clustering analysis
     # generate_data_clustering_analysis(training_tokens, "k-means")

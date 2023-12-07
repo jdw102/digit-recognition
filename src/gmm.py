@@ -1,5 +1,5 @@
 from src.data_clustering import perform_k_means, perform_em
-from src.data_parser import phoneme_nums, extract_mfccs
+from src.data_parser import phoneme_nums
 from scipy.stats import multivariate_normal
 import numpy as np
 
@@ -27,12 +27,11 @@ def digit_likelihood(digit, gmm, d):
     return ret
 
 
-def likelihood_all_digits(digit, d):
-    tokens = extract_mfccs(d)
-    gmm = create_gmm(digit, tokens[digit], "k-means", "full", False)
+def likelihood_all_digits(digit, data, tokens, method="k-means", cov_type="full", tied=False):
+    gmm = create_gmm(digit, tokens[digit], method, cov_type, tied)
     likelihoods = []
     for num in range(10):
-        likelihoods.append(digit_likelihood(num, gmm, d))
+        likelihoods.append(digit_likelihood(num, gmm, data))
     return likelihoods
 
 

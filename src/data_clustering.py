@@ -20,7 +20,7 @@ def perform_k_means(data, n, covariance_type="full", tied=False):
         clusters.append({
             "mean": k_means.cluster_centers_[i],
             "cov": covariances[i],
-            "pi": len(points) / len(data),
+            "pi": len(points[i]) / len(data),
             "points": points[i]
         })
     return clusters

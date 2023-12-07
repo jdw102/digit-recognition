@@ -60,7 +60,7 @@ def mfccs_contours(center, cov_matrix, plotting_pairs, ax, color):
 
 
 def plot_kde(log_likelihoods, ax, digit):
-    kde = KernelDensity(kernel="gaussian", bandwidth=30.0)
+    kde = KernelDensity(kernel="gaussian", bandwidth=20.0)
     kde.fit(log_likelihoods[:, np.newaxis])
     x = np.linspace(min(log_likelihoods), max(log_likelihoods), 1000)
     log_dens = kde.score_samples(x[:, np.newaxis])

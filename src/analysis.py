@@ -18,8 +18,8 @@ def generate_mfccs_analysis(block_num, num_coeffs, gender, data):
         plot_analysis_window_function_single_utterance(utterance, num_coeffs, digit, gender, block_num)
 
 
-def generate_log_likelihood_analysis(digit, data):
-    log_likelihoods = likelihood_all_digits(digit, data)
+def generate_log_likelihood_analysis(digit, data, tokens, method, cov_type, tied):
+    log_likelihoods = likelihood_all_digits(digit, data, tokens, method, cov_type, tied)
     fig, ax = plt.subplots(10, sharex=True, sharey=True, figsize=(6, 12))
     for i in range(10):
         plot_kde(np.array(log_likelihoods[i]), ax[i], i)
