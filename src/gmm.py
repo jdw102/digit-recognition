@@ -8,8 +8,8 @@ from src.cov_util import Cov
 
 
 class Method(Enum):
-    K_MEANS = "k-means"
-    E_M = "em"
+    K_MEANS = "K-Means"
+    E_M = "EM"
 
 
 def create_gmm(digit, tokens, method=Method.K_MEANS, cov_type=Cov.FULL):

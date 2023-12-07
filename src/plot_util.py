@@ -5,7 +5,6 @@ from sklearn.neighbors import KernelDensity
 from src.data_parser import unzip_tokens
 from matplotlib.colors import LinearSegmentedColormap
 
-
 plotting_colors = ['red', 'green', 'blue', 'orange', 'yellow', 'brown', 'black']
 
 
@@ -38,7 +37,7 @@ def plot_mfccs_subplots_single_utterance(utterance, plotting_pairs, digit, gende
     mfccs_subplots(unzip_tokens(utterance), plotting_pairs, ax)
     fig.suptitle("Single Utterance of " + str(digit) + ", " + gender + " num " + str(num))
     plt.tight_layout()
-    fig.savefig("single_utterance_mfccs_plots/" + gender + "_num" + str(num) + "_digit"+str(digit) + "_mfccs.png")
+    fig.savefig("single_utterance_mfccs_plots/" + gender + "_num" + str(num) + "_digit" + str(digit) + "_mfccs.png")
     plt.close(fig)
 
 
@@ -88,23 +87,34 @@ def plot_clusters(clusters, digit):
     plt.show()
 
 
-def plot_confusion_matrix(confusion_matrix, overall_accuracy):
-    fig, ax = plt.subplots()
+def plot_confusion_matrix(confusion_matrix, overall_accuracy, cluster_counts, title, filename):
+    fig, (ax_matrix, ax_table) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [4, 1]},
+                                              figsize=(10, 6))
     gradient_cmap = LinearSegmentedColormap.from_list('custom_gradient', ["#ffffff", "#6d98ed"], N=256)
-    im = ax.imshow(confusion_matrix, cmap=gradient_cmap)
+    im = ax_matrix.imshow(confusion_matrix, cmap=gradient_cmap)
 
-    ax.set_xticks(np.arange(10))
-    ax.set_yticks(np.arange(10))
-    ax.set_xticklabels([str(i) for i in range(10)])
-    ax.set_yticklabels([str(i) for i in range(10)])
+    ax_matrix.set_title(f"Confusion Matrix {title} : {round(overall_accuracy * 100, 2)}% Accuracy")
+    ax_matrix.set_xticks(np.arange(10))
+    ax_matrix.set_yticks(np.arange(10))
+    ax_matrix.set_xticklabels([str(i) for i in range(10)])
+    ax_matrix.set_yticklabels([str(i) for i in range(10)])
 
     plt.xlabel("Predicted Values")
     plt.ylabel("True Values")
-    plt.title("Confusion Matrix w/ Overall Accuracy: {:.2f}%".format(overall_accuracy * 100))
 
     for i in range(10):
         for j in range(10):
-            ax.text(j, i, "{:.2f}".format(confusion_matrix[i, j]), ha='center', va='center', color='black')
+            ax_matrix.text(j, i, "{:.2f}".format(confusion_matrix[i, j]), ha='center', va='center', color='black')
+
+    table_data = [["Digit", "# Clusters"]] + [[str(i), str(cluster_counts[i])] for i in range(10)]
+    table = ax_table.table(cellText=table_data, loc='center', cellLoc='center', colWidths=[0.5, 0.5])
+    table.scale(1, 2.3)
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+
+    ax_table.set_title("Number of Clusters per Digit")
+    ax_table.axis('off')
 
     plt.colorbar(im)
+    plt.savefig(f"./data/results/confusion_matrices/{filename}.png")
     plt.show()

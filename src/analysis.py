@@ -4,10 +4,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from src.data_clustering import perform_k_means, perform_em
-from src.data_parser import phoneme_nums
 from src.gmm import generate_model, determine_category, likelihood_all_digits, Method
 from src.plot_util import plot_clusters, plot_mfccs_subplots_single_utterance, \
     plot_analysis_window_function_single_utterance, plot_kde, plot_confusion_matrix
+from src.data_parser import mfcc_indices, phoneme_nums
 
 
 def generate_mfccs_analysis(block_num, num_coeffs, gender, data):
@@ -41,7 +41,9 @@ def generate_data_clustering_analysis(tokens, method, cov_type):
 
 def generate_confusion_matrix(tokens, testing_data, method, cov_type):
     overall_accuracy, confusion_matrix = calculate_accuracy(tokens, testing_data, method, cov_type)
-    plot_confusion_matrix(confusion_matrix, overall_accuracy)
+    plot_confusion_matrix(confusion_matrix, overall_accuracy, phoneme_nums,
+                          f"{method.value} {cov_type.value.title()} Cov",
+                          f"cm-{method.value}-{cov_type.value.title()}-{len(mfcc_indices)}coeffs-table{np.prod(np.multiply(phoneme_nums, np.arange(1, 11)))}")
 
 
 def calculate_accuracy(tokens, testing_data, method, cov_type):
@@ -58,6 +60,7 @@ def calculate_accuracy(tokens, testing_data, method, cov_type):
         confusion_matrix[actual] = np.divide(confusion_matrix[actual], len(data))
     overall_accuracy = total_correct / ((len(testing_data[0]["male"]) + len(testing_data[0]["female"])) * 10)
     return overall_accuracy, confusion_matrix
+
 
 def determine_optimal_coeffs():
     pass

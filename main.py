@@ -4,7 +4,7 @@ from src.gmm import Method
 from src.cov_util import Cov
 
 if __name__ == "__main__":
-    print("Hello world!")
+    print("Running analysis.. this may take a while.")
     # Generate plots for analysis frame and sub-dimension of tokens
     # generate_mfccs_analysis(0, 3, "male", training_data)
 
@@ -16,5 +16,5 @@ if __name__ == "__main__":
     # generate_data_clustering_analysis(training_tokens, Method.E_M, Cov.FULL)
 
     # Generate confusion matrix for accuracy analysis
-    generate_confusion_matrix(training_tokens, test_data, Method.E_M, Cov.DIAG)
-
+    generate_confusion_matrix(training_tokens, test_data, Method.K_MEANS, Cov.FULL)
+    print("Done!")
