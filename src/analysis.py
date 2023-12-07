@@ -2,12 +2,12 @@ from itertools import combinations
 
 import numpy as np
 from matplotlib import pyplot as plt
+from sklearn.feature_selection import f_classif, SelectKBest
 
 from src.data_clustering import perform_k_means, perform_em
 from src.gmm import generate_model, determine_category, likelihood_all_digits, Method
 from src.plot_util import plot_clusters, plot_mfccs_subplots_single_utterance, \
     plot_analysis_window_function_single_utterance, plot_kde, plot_confusion_matrix
-from src.data_parser import mfcc_indices, phoneme_nums
 
 
 def generate_mfccs_analysis(block_num, num_coeffs, gender, data):
@@ -30,24 +30,22 @@ def generate_log_likelihood_analysis(digit, data, tokens, method, cov_type):
     plt.show()
 
 
-def generate_data_clustering_analysis(tokens, method, cov_type):
-    for digit, coeffs in enumerate(tokens):
+def generate_data_clustering_analysis(tokens, phoneme_clusters, method, cov_type):
+    for digit, utterances in enumerate(tokens):
         if method == Method.K_MEANS:
-            clusters = perform_k_means(coeffs, phoneme_nums[digit], cov_type)
+            clusters = perform_k_means(utterances, phoneme_clusters[digit], cov_type)
         else:
-            clusters = perform_em(coeffs, phoneme_nums[digit], cov_type)
+            clusters = perform_em(utterances, phoneme_clusters[digit], cov_type)
         plot_clusters(clusters, digit)
 
 
-def generate_confusion_matrix(tokens, testing_data, method, cov_type):
-    overall_accuracy, confusion_matrix = calculate_accuracy(tokens, testing_data, method, cov_type)
-    plot_confusion_matrix(confusion_matrix, overall_accuracy, phoneme_nums,
-                          f"{method.value} {cov_type.value.title()} Cov",
-                          f"cm-{method.value}-{cov_type.value.title()}-{len(mfcc_indices)}coeffs-table{np.prod(np.multiply(phoneme_nums, np.arange(1, 11)))}")
+def generate_confusion_matrix(tokens, testing_data, phoneme_clusters, method, cov_type, title, filename):
+    overall_accuracy, confusion_matrix = calculate_accuracy(tokens, testing_data, phoneme_clusters, method, cov_type)
+    plot_confusion_matrix(confusion_matrix, overall_accuracy, phoneme_clusters, title, filename)
 
 
-def calculate_accuracy(tokens, testing_data, method, cov_type):
-    model = generate_model(tokens, method, cov_type)
+def calculate_accuracy(tokens, testing_data, phoneme_clusters, method, cov_type):
+    model = generate_model(tokens, phoneme_clusters, method, cov_type)
     confusion_matrix = np.zeros((10, 10))
     total_correct = 0
     for actual in range(10):
@@ -62,5 +60,14 @@ def calculate_accuracy(tokens, testing_data, method, cov_type):
     return overall_accuracy, confusion_matrix
 
 
-def determine_optimal_coeffs():
-    pass
+def determine_optimal_coeffs(data, k):
+    x = []
+    y = []
+    for digit in range(10):
+        d = data[digit]["male"] + data[digit]["female"]
+        for utterance in d:
+            x.append(utterance)
+            y.append(digit)
+    selector = SelectKBest(f_classif, k=k)
+    selector.fit_transform(x, y)
+    return selector.get_support(indices=True)

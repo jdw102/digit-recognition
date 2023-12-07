@@ -1,7 +1,6 @@
 from enum import Enum
 
 from src.data_clustering import perform_k_means, perform_em
-from src.data_parser import phoneme_nums
 from scipy.stats import multivariate_normal
 import numpy as np
 from src.cov_util import Cov
@@ -12,10 +11,10 @@ class Method(Enum):
     E_M = "EM"
 
 
-def create_gmm(digit, tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
+def create_gmm(tokens, n_clusters, method=Method.K_MEANS, cov_type=Cov.FULL):
     if method == Method.E_M:
-        return perform_em(tokens, phoneme_nums[digit], covariance_type=cov_type)
-    return perform_k_means(tokens, phoneme_nums[digit], covariance_type=cov_type)
+        return perform_em(tokens, n_clusters, covariance_type=cov_type)
+    return perform_k_means(tokens, n_clusters, covariance_type=cov_type)
 
 
 def gmm_likelihood(gmm, utterance):
@@ -43,8 +42,8 @@ def likelihood_all_digits(digit, data, tokens, method=Method.K_MEANS, cov_type=C
     return likelihoods
 
 
-def generate_model(tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
-    return [create_gmm(i, tokens[i], method, cov_type) for i in range(10)]
+def generate_model(tokens, cluster_nums, method=Method.K_MEANS, cov_type=Cov.FULL):
+    return [create_gmm(tokens[i], cluster_nums[i], method, cov_type) for i in range(10)]
 
 
 def determine_category(utterance, model):

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
 from sklearn.neighbors import KernelDensity
-from src.data_parser import unzip_tokens
+from src.data_parser import unzip_frames
 from matplotlib.colors import LinearSegmentedColormap
 
 plotting_colors = ['red', 'green', 'blue', 'orange', 'yellow', 'brown', 'black']
@@ -34,7 +34,7 @@ def mfccs_subplots(mfccs, plotting_pairs, ax, s=10.0, alpha=1.0, color='blue', l
 
 def plot_mfccs_subplots_single_utterance(utterance, plotting_pairs, digit, gender, num):
     fig, ax = plt.subplots(1, len(plotting_pairs), figsize=(12, 6))
-    mfccs_subplots(unzip_tokens(utterance), plotting_pairs, ax)
+    mfccs_subplots(unzip_frames(utterance), plotting_pairs, ax)
     fig.suptitle("Single Utterance of " + str(digit) + ", " + gender + " num " + str(num))
     plt.tight_layout()
     fig.savefig("single_utterance_mfccs_plots/" + gender + "_num" + str(num) + "_digit" + str(digit) + "_mfccs.png")
@@ -74,7 +74,7 @@ def plot_clusters(clusters, digit):
     fig, ax = plt.subplots(1, 3, figsize=(12, 6))
     index = 0
     for cluster in clusters:
-        mfccs = unzip_tokens(cluster["points"])
+        mfccs = unzip_frames(cluster["points"])
         mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7, color=plotting_colors[index],
                        label="phoneme cluster " + str(index + 1))
         mfccs_contours(cluster["mean"], cluster["cov"], [[1, 0], [2, 0], [2, 1]], ax, plotting_colors[index])
@@ -99,8 +99,8 @@ def plot_confusion_matrix(confusion_matrix, overall_accuracy, cluster_counts, ti
     ax_matrix.set_xticklabels([str(i) for i in range(10)])
     ax_matrix.set_yticklabels([str(i) for i in range(10)])
 
-    plt.xlabel("Predicted Values")
-    plt.ylabel("True Values")
+    ax_matrix.set_xlabel("Predicted Values")
+    ax_matrix.set_ylabel("True Values")
 
     for i in range(10):
         for j in range(10):

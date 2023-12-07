@@ -6,7 +6,7 @@ class Cov(Enum):
     FULL = "full"
     DIAG = "diag"
     SPHERICAL = "spherical"
-    TIED_FULL = "tied"
+    TIED_FULL = "tied full"
     TIED_DIAG = "tied diag"
     TIED_SPHERICAL = "tied spherical"
 

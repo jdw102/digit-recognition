@@ -27,7 +27,7 @@ def perform_k_means(data, n, covariance_type=Cov.FULL):
 
 def perform_em(data, n, covariance_type=Cov.FULL):
     data = np.array(data)
-    gm = GaussianMixture(n_components=n, covariance_type=covariance_type.value).fit(data)
+    gm = GaussianMixture(n_components=n, covariance_type=covariance_type.value, random_state=rand).fit(data)
     labels = gm.predict(data)
     unique_labels = np.unique(labels)
     points = [data[labels == label] for label in unique_labels]
