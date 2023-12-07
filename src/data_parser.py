@@ -1,10 +1,9 @@
 import numpy as np
+import copy
 
 
 # Returns a general form of the data, separated by digit, then gender, and then block
-def load_data(name, num_blocks, frame_sampling_rate=1, features=None):
-    if features is None:
-        features = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+def load_data(name, num_blocks):
     data = {}
     text_blocks = []
     current_block = ""
@@ -26,10 +25,8 @@ def load_data(name, num_blocks, frame_sampling_rate=1, features=None):
             data[digit] = {}
         if gender not in data[digit]:
             data[digit][gender] = []
-        entries = [[float(entry) for entry in np.array(line.split(" "))[features]] for i, line in
-                   enumerate(block.split("\n"))
-                   if (i + 1) % frame_sampling_rate == 0]
-        data[digit][gender].append(entries)
+        entries = [[float(entry) for entry in np.array(line.split(" "))] for line in block.split("\n")]
+        data[digit][gender].append(np.array(entries))
     return data
 
 
@@ -44,14 +41,19 @@ def extract_tokens(data):
     return mfccs
 
 
+def filter_data(data, frame_sampling_rate=1, features=None):
+    ret = copy.deepcopy(data)
+    if features is None:
+        features = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    for digit in data:
+        for i, utterance in enumerate(ret[digit]["male"]):
+            ret[digit]["male"][i] = utterance[::frame_sampling_rate, features]
+        for i, utterance in enumerate(data[digit]["female"]):
+            ret[digit]["female"][i] = utterance[::frame_sampling_rate, features]
+    return ret
+
+
 # Separates a list of tokens into a 2D tuple of MFCCs separated by their index
 def unzip_frames(token):
     return tuple(zip(*token))
-
-
-def extract_coeffs(tokens, indices):
-    tokens = np.array(tokens)
-    return tokens[:, indices]
-
-
 

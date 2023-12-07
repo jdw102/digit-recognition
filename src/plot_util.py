@@ -118,3 +118,24 @@ def plot_confusion_matrix(confusion_matrix, overall_accuracy, cluster_counts, ti
     plt.colorbar(im)
     plt.savefig(f"./data/results/confusion_matrices/{filename}.png")
     plt.show()
+
+
+def plot_feature_accuracy(accuracies, indices):
+    write_integers_to_txt(indices, "./data/results/optimal-features.txt")
+    highest_accuracy_index = accuracies.index(max(accuracies))
+    plt.scatter(highest_accuracy_index + 1, accuracies[highest_accuracy_index], color='yellow', marker='*', s=200,
+                label='Optimal Subset')
+    plt.plot([i + 1 for i in range(len(accuracies))], accuracies, marker='o')
+    plt.title("Impact of Feature Subsets on Model Accuracy")
+    plt.xlabel("Number of MFCCs Included")
+    plt.ylabel("Overall Model Accuracy")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("./data/results/optimal-features.png")
+    plt.show()
+
+
+def write_integers_to_txt(integers, file_path):
+    with open(file_path, 'w') as file:
+        for num in integers:
+            file.write(f"{num}\n")
