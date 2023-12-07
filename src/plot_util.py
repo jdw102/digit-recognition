@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
 from sklearn.neighbors import KernelDensity
-from src.data_parser import separate_mfccs
+from src.data_parser import unzip_tokens
 from matplotlib.colors import LinearSegmentedColormap
 
 
@@ -35,7 +35,7 @@ def mfccs_subplots(mfccs, plotting_pairs, ax, s=10.0, alpha=1.0, color='blue', l
 
 def plot_mfccs_subplots_single_utterance(utterance, plotting_pairs, digit, gender, num):
     fig, ax = plt.subplots(1, len(plotting_pairs), figsize=(12, 6))
-    mfccs_subplots(separate_mfccs(utterance), plotting_pairs, ax)
+    mfccs_subplots(unzip_tokens(utterance), plotting_pairs, ax)
     fig.suptitle("Single Utterance of " + str(digit) + ", " + gender + " num " + str(num))
     plt.tight_layout()
     fig.savefig("single_utterance_mfccs_plots/" + gender + "_num" + str(num) + "_digit"+str(digit) + "_mfccs.png")
@@ -75,7 +75,7 @@ def plot_clusters(clusters, digit):
     fig, ax = plt.subplots(1, 3, figsize=(12, 6))
     index = 0
     for cluster in clusters:
-        mfccs = separate_mfccs(cluster["points"])
+        mfccs = unzip_tokens(cluster["points"])
         mfccs_subplots(mfccs, [[1, 0], [2, 0], [2, 1]], ax, s=0.1, alpha=0.7, color=plotting_colors[index],
                        label="phoneme cluster " + str(index + 1))
         mfccs_contours(cluster["mean"], cluster["cov"], [[1, 0], [2, 0], [2, 1]], ax, plotting_colors[index])

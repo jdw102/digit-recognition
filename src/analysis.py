@@ -40,8 +40,13 @@ def generate_data_clustering_analysis(tokens, method, cov_type):
 
 
 def generate_confusion_matrix(tokens, testing_data, method, cov_type):
+    overall_accuracy, confusion_matrix = calculate_accuracy(tokens, testing_data, method, cov_type)
+    plot_confusion_matrix(confusion_matrix, overall_accuracy)
+
+
+def calculate_accuracy(tokens, testing_data, method, cov_type):
     model = generate_model(tokens, method, cov_type)
-    confusion = np.zeros((10, 10))
+    confusion_matrix = np.zeros((10, 10))
     total_correct = 0
     for actual in range(10):
         data = testing_data[actual]["male"] + testing_data[actual]["female"]
@@ -49,7 +54,10 @@ def generate_confusion_matrix(tokens, testing_data, method, cov_type):
             predicted = determine_category(utterance, model)
             if actual == predicted:
                 total_correct += 1
-            confusion[actual][predicted] += 1
-        confusion[actual] = np.divide(confusion[actual], len(data))
+            confusion_matrix[actual][predicted] += 1
+        confusion_matrix[actual] = np.divide(confusion_matrix[actual], len(data))
     overall_accuracy = total_correct / ((len(testing_data[0]["male"]) + len(testing_data[0]["female"])) * 10)
-    plot_confusion_matrix(confusion, overall_accuracy)
+    return overall_accuracy, confusion_matrix
+
+def determine_optimal_coeffs():
+    pass

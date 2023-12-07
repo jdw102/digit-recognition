@@ -1,3 +1,5 @@
+import numpy as np
+
 
 # Returns a general form of the data, separated by digit, then gender, and then block
 def parse(name, num_blocks):
@@ -27,7 +29,7 @@ def parse(name, num_blocks):
 
 
 # Extracts all tokens into a single list
-def extract_mfccs(data):
+def extract_tokens(data):
     mfccs = [[] for _ in range(10)]
     for digit in data:
         if digit not in mfccs:
@@ -40,14 +42,20 @@ def extract_mfccs(data):
 
 
 # Separates a list of tokens into a 2D tuple of MFCCs separated by their index
-def separate_mfccs(mfccs):
-    return tuple(zip(*mfccs))
+def unzip_tokens(tokens):
+    return tuple(zip(*tokens))
+
+
+def extract_coeffs(tokens, indices):
+    tokens = np.array(tokens)
+    return tokens[:, indices]
 
 
 training_data = parse("./data/resources/Train_Arabic_Digit.txt", 660)
 test_data = parse("./data/resources/Test_Arabic_Digit.txt", 220)
-training_tokens = extract_mfccs(training_data)
-test_tokens = extract_mfccs(test_data)
+training_tokens = unzip_tokens(training_data)
+test_tokens = unzip_tokens(test_data)
 
-# Number of phonemes in each digit
+# Number of phonemes in each digit and the indices of the MFCCs
 phoneme_nums = [4, 4, 4, 3, 3, 4, 4, 4, 6, 3]
+mfcc_indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
