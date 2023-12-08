@@ -5,8 +5,8 @@ from src.data_parser import filter_data, extract_tokens
 from src.data_clustering import perform_k_means, perform_em
 from src.gmm import generate_model, determine_category, likelihood_all_digits, Method
 from src.plot_util import plot_clusters, plot_mfccs_subplots_single_utterance, \
-    plot_analysis_window_function_single_utterance, plot_kde, plot_confusion_matrix, plot_feature_accuracy, \
-    plot_kde_likelihood, plot_covariance_bar_graph
+    plot_analysis_window_function_single_utterance, plot_confusion_matrix, plot_feature_accuracy, \
+    plot_kde_likelihood, plot_covariance_bar_graph, plot_cluster_number_accuracies
 
 
 def generate_mfccs_analysis(block_num, num_coeffs, gender, data):
@@ -76,6 +76,7 @@ def determine_optimal_coeffs(training_data, testing_data, phoneme_clusters, meth
     results = []
     ret = []
     remaining = total_features.copy()
+    matrices = []
     while len(ret) < k:
         accuracies = []
         max_accuracy = -1
@@ -84,7 +85,7 @@ def determine_optimal_coeffs(training_data, testing_data, phoneme_clusters, meth
             curr_features = ret + [feature]
             curr_testing_data = filter_data(testing_data, subsampling_rate, curr_features)
             curr_training_data = filter_data(training_data, subsampling_rate, curr_features)
-            curr_accuracy, _ = calculate_accuracy(curr_training_data, curr_testing_data, phoneme_clusters,
+            curr_accuracy, matrices = calculate_accuracy(curr_training_data, curr_testing_data, phoneme_clusters,
                                                   method,
                                                   cov_type)
             accuracies.append(curr_accuracy)
@@ -118,4 +119,26 @@ def generate_covariance_analysis(training_data, testing_data, phoneme_clusters, 
     plot_covariance_bar_graph(em_cov, km_cov, title, filename)
 
 
+def generate_cluster_number_analysis(digit, training_data, testing_data, phoneme_clusters, method, cov_type,
+                                     subsampling_rate,
+                                     features):
+    cluster_nums = phoneme_clusters.copy()
+    digit_accuracies = [[] for _ in range(10)]
+    overall_accuracy = []
+    filtered_training_data = filter_data(training_data, subsampling_rate, features)
+    filtered_test_data = filter_data(testing_data, subsampling_rate, features)
+    for i in range(1, 11):
+        cluster_nums[digit] = i
+        accuracy, cm = calculate_accuracy(filtered_training_data, filtered_test_data, cluster_nums, method, cov_type)
+        for j in range(len(digit_accuracies)):
+            digit_accuracies[j].append(cm[j][j])
+        overall_accuracy.append(accuracy)
+    # overall_accuracy = [0.5, 0.4, 0.6]
+    # digit_accuracies = [
+    #     [0.2, 0.3, 0.4],
+    #     [0.1, 0.3, 0.6]
+    # ]
 
+    filename = f"digit{digit}-{method.value}-{cov_type.value}-{len(features)}coeffs-{subsampling_rate}rate"
+    title = f"{method.value.title()} | {cov_type.value.title()} | {len(features)} Features | {subsampling_rate}x Sampling"
+    plot_cluster_number_accuracies(digit, overall_accuracy, digit_accuracies, title, filename)

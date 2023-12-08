@@ -174,16 +174,34 @@ def plot_covariance_bar_graph(em_cov, km_cov, title, filename):
     # Create grouped bar graph
     plt.bar(index, em_vals, width=bar_width, label='EM')
     plt.bar(index + bar_width, km_vals, width=bar_width, label='K-Means')
-
+    for i, (v1, v2) in enumerate(zip(em_vals, km_vals)):
+        plt.text(index[i] + bar_width / 20, v1, "{:.2f}".format(v1), ha='center', va='bottom')
+        plt.text(index[i] + bar_width / 0.85, v2,  "{:.2f}".format(v2), ha='center', va='bottom')
     # Customize the plot
     plt.xlabel("Covariances")
     plt.ylabel("Accuracy")
     plt.title(title, fontsize=10)
     plt.suptitle("Model Accuracy Across Different Covariances", y=0.94, x=0.55)
     plt.xticks(index + bar_width / 2, categories, fontsize=8)  # Set x-axis ticks at the center of each group
-    plt.legend()
+    plt.legend(bbox_to_anchor=(0.15, 1.05), loc='upper center', ncol=1)
     plt.tight_layout()
     plt.savefig(f"./data/results/accuracy_cov_plots/{filename}.png")
 
     # Show the plot
+    plt.show()
+
+
+def plot_cluster_number_accuracies(digit, overall_accuracies, digit_accuracies, title, filename):
+    x = [i + 1 for i in range(len(overall_accuracies))]
+    plt.plot(x, overall_accuracies, label="Overall", marker='*', linestyle='--', color='gold')
+    plt.xticks(x)
+    for i, accuracies in enumerate(digit_accuracies):
+        plt.plot(x, accuracies, label=f"{i}", marker='o')
+    plt.suptitle("Impact of Changing Number of Clusters on Accuracy", y=0.94, x=0.55)
+    plt.title(title, fontsize=10)
+    plt.xlabel(f"Number of Phoneme Clusters for Digit {digit}")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"./data/results/cluster_number_plots/{filename}.png")
     plt.show()
