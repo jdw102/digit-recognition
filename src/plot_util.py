@@ -65,12 +65,30 @@ def plot_kde(log_likelihoods, ax, digit):
     x = np.linspace(min(log_likelihoods), max(log_likelihoods), 1000)
     log_dens = kde.score_samples(x[:, np.newaxis])
     dens = np.exp(log_dens)
-    ax.plot(x, dens, 'r', label='Digit' + str(digit) + ' KDE')
+    ax.plot(x, dens)
+    ax.set_ylim(0, 0.006)
     ax.set_xlim(-800, -300)
-    ax.legend()
+    ax.set_title(f"Digit {str(digit)} KDE")
+    ax.set_xlabel("Log Likelihood")
+    ax.set_ylabel("Probability Density")
+    # ax.axis('equal')
 
 
-def plot_clusters(clusters, digit):
+def plot_kde_likelihood(log_likelihoods, title, filename):
+    fig, ax = plt.subplots(5, 2, figsize=(18, 12))
+    ax = ax.flatten()
+    for i in range(10):
+        plot_kde(np.array(log_likelihoods[i]), ax[i], i)
+    # fig.text(0.5, 0.02, 'Log Likelihood', ha='center', va='center', fontsize=12)
+    # fig.text(0.06, 0.5, 'Probability Density', ha='center', va='center', rotation='vertical', fontsize=12)
+    fig.suptitle(title)
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=1.0, top=0.92, bottom=0.08)
+    # plt.subplots_adjust(bottom=0.1)
+    plt.savefig(f"./data/results/kde_likelihood_plots/{filename}.png")
+
+
+def plot_clusters(clusters, title, filename):
     fig, ax = plt.subplots(1, 3, figsize=(12, 6))
     index = 0
     for cluster in clusters:
@@ -81,19 +99,20 @@ def plot_clusters(clusters, digit):
         index += 1
     handles, labels = plt.gca().get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center', ncol=index, markerscale=10)
-    fig.suptitle("K-Means Phoneme Clusters on MFCCs: Digit " + str(digit))
+    fig.suptitle(title)
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.15)
-    plt.show()
+    plt.savefig(f"./data/results/sub_dimension_clustering/{filename}.png")
 
 
-def plot_confusion_matrix(confusion_matrix, overall_accuracy, cluster_counts, title, filename):
+def plot_confusion_matrix(confusion_matrix, cluster_counts, title, filename):
     fig, (ax_matrix, ax_table) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [4, 1]},
                                               figsize=(10, 6))
     gradient_cmap = LinearSegmentedColormap.from_list('custom_gradient', ["#ffffff", "#6d98ed"], N=256)
     im = ax_matrix.imshow(confusion_matrix, cmap=gradient_cmap)
 
-    ax_matrix.set_title(f"Confusion Matrix {title} : {round(overall_accuracy * 100, 2)}% Accuracy")
+    ax_matrix.set_title("Confusion Matrix")
+    fig.suptitle(title)
     ax_matrix.set_xticks(np.arange(10))
     ax_matrix.set_yticks(np.arange(10))
     ax_matrix.set_xticklabels([str(i) for i in range(10)])
@@ -121,11 +140,13 @@ def plot_confusion_matrix(confusion_matrix, overall_accuracy, cluster_counts, ti
 
 
 def plot_feature_accuracy(accuracies, indices):
-    write_integers_to_txt(indices, "./data/results/optimal-features.txt")
+    write_optimal_to_txt(indices, accuracies, "./data/results/optimal-features.txt")
+    x = [i + 1 for i in range(len(accuracies))]
     highest_accuracy_index = accuracies.index(max(accuracies))
-    plt.scatter(highest_accuracy_index + 1, accuracies[highest_accuracy_index], color='yellow', marker='*', s=200,
-                label='Optimal Subset')
-    plt.plot([i + 1 for i in range(len(accuracies))], accuracies, marker='o')
+    plt.scatter(highest_accuracy_index + 1, accuracies[highest_accuracy_index], color='gold', marker='*', s=200,
+                label='Optimal Subset', zorder=10)
+    plt.plot(x, accuracies, marker='o')
+    plt.xticks(x)
     plt.title("Impact of Feature Subsets on Model Accuracy")
     plt.xlabel("Number of MFCCs Included")
     plt.ylabel("Overall Model Accuracy")
@@ -135,7 +156,34 @@ def plot_feature_accuracy(accuracies, indices):
     plt.show()
 
 
-def write_integers_to_txt(integers, file_path):
+def write_optimal_to_txt(features, accuracies, file_path):
     with open(file_path, 'w') as file:
-        for num in integers:
-            file.write(f"{num}\n")
+        file.write(f"F : A\n")
+        for feature, accuracy in zip(features, accuracies):
+            file.write(f"{feature} : {accuracy} \n")
+
+
+def plot_covariance_bar_graph(em_cov, km_cov, title, filename):
+    categories = list(em_cov.keys())
+    em_vals = list(em_cov.values())
+    km_vals = list(km_cov.values())
+
+    bar_width = 0.35  # Width of each bar
+    index = np.arange(len(categories))  # X-axis index for each category
+
+    # Create grouped bar graph
+    plt.bar(index, em_vals, width=bar_width, label='EM')
+    plt.bar(index + bar_width, km_vals, width=bar_width, label='K-Means')
+
+    # Customize the plot
+    plt.xlabel("Covariances")
+    plt.ylabel("Accuracy")
+    plt.title(title, fontsize=10)
+    plt.suptitle("Model Accuracy Across Different Covariances", y=0.94, x=0.55)
+    plt.xticks(index + bar_width / 2, categories, fontsize=8)  # Set x-axis ticks at the center of each group
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"./data/results/accuracy_cov_plots/{filename}.png")
+
+    # Show the plot
+    plt.show()

@@ -34,8 +34,8 @@ def digit_likelihood(digit, gmm, d):
     return ret
 
 
-def likelihood_all_digits(digit, data, tokens, method=Method.K_MEANS, cov_type=Cov.FULL):
-    gmm = create_gmm(digit, tokens[digit], method, cov_type)
+def likelihood_all_digits(data, tokens, n_clusters, method=Method.K_MEANS, cov_type=Cov.FULL):
+    gmm = create_gmm(tokens, n_clusters, method, cov_type)
     likelihoods = []
     for num in range(10):
         likelihoods.append(digit_likelihood(num, gmm, data))
