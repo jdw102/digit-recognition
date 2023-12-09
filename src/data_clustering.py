@@ -3,12 +3,10 @@ from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from src.cov_util import cov, Cov
 
-rand = np.random.RandomState(42)
 
-
-def perform_k_means(data, n, covariance_type=Cov.FULL):
+def perform_k_means(data, n, random_state, covariance_type=Cov.FULL):
     data = np.array(data)
-    k_means = KMeans(n_clusters=n, random_state=rand, n_init="auto", init='k-means++').fit(data)
+    k_means = KMeans(n_clusters=n, random_state=random_state, n_init="auto", init='k-means++').fit(data)
     labels = np.array(k_means.labels_)
     unique_labels = np.unique(labels)
     points = [data[labels == label] for label in unique_labels]
@@ -25,9 +23,9 @@ def perform_k_means(data, n, covariance_type=Cov.FULL):
     return clusters
 
 
-def perform_em(data, n, covariance_type=Cov.FULL):
+def perform_em(data, n, random_state, covariance_type=Cov.FULL):
     data = np.array(data)
-    gm = GaussianMixture(n_components=n, covariance_type=covariance_type.value, random_state=rand).fit(data)
+    gm = GaussianMixture(n_components=n, covariance_type=covariance_type.value, random_state=random_state).fit(data)
     labels = gm.predict(data)
     unique_labels = np.unique(labels)
     points = [data[labels == label] for label in unique_labels]

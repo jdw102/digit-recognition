@@ -205,3 +205,20 @@ def plot_cluster_number_accuracies(digit, overall_accuracies, digit_accuracies, 
     plt.tight_layout()
     plt.savefig(f"./data/results/cluster_number_plots/{filename}.png")
     plt.show()
+
+
+def plot_sub_sampling_accuracies(accuracies, title, filename):
+    x = [i + 1 for i in range(10)]
+    plt.plot(x, accuracies, marker='o')
+    highest_accuracy_index = accuracies.index(max(accuracies))
+    plt.scatter(highest_accuracy_index + 1, accuracies[highest_accuracy_index], color='gold', marker='*', s=200,
+                label='Optimal Rate', zorder=10)
+    plt.xticks(x)
+    plt.xlabel("Analysis Frame Sampling Rate")
+    plt.ylabel("Accuracy")
+    plt.suptitle("Impact of Changing Number of Clusters on Accuracy", y=0.94, x=0.55)
+    plt.title(title, fontsize=10)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"./data/results/sampling_rate_plots/{filename}.png")
+
